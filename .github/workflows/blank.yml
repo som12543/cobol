@@ -7,9 +7,7 @@ on:
 
 jobs:
 
-  ####################################################
   # 1) SECURITY SCAN
-  ####################################################
   security_scan:
     name: Security Scan (Trivy)
     runs-on: self-hosted
@@ -28,10 +26,7 @@ jobs:
       - name: Run Trivy on source code
         run: trivy fs . --exit-code 0 --no-progress
 
-
-  ####################################################
   # 2) PARALLEL BUILD + DB MIGRATION
-  ####################################################
   build_and_migrate:
     name: Parallel: Build COBOL App + DB Migration
     runs-on: self-hosted
@@ -48,18 +43,12 @@ jobs:
       - name: Install required tools
         run: sudo apt-get install -y gnu-cobol dos2unix postgresql-client unzip
 
-      ####################################################
-      # BUILD
-      ####################################################
       - name: Build COBOL executable (Linux)
         if: matrix.jobtype == 'build'
         run: |
           dos2unix scripts/build.sh
           bash scripts/build.sh
 
-      ####################################################
-      # MIGRATE
-      ####################################################
       - name: Run DB Migrations on PostgreSQL
         if: matrix.jobtype == 'migrate'
         env:
@@ -71,10 +60,7 @@ jobs:
           dos2unix scripts/db_migrate.sh
           bash scripts/db_migrate.sh
 
-
-  ####################################################
   # 3) PUSH BUILD OUTPUT TO NEXUS
-  ####################################################
   push_to_nexus:
     name: Push Executable to Nexus Repository
     runs-on: self-hosted
@@ -90,15 +76,11 @@ jobs:
           NEXUS_USER: ${{ secrets.NEXUS_USER }}
           NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
         run: |
-          echo "Uploading to Nexus…"
           curl -v -u "$NEXUS_USER:$NEXUS_PASS" \
             --upload-file output/cobol-app \
             "http://$NEXUS_IP:8081/repository/cobol-release/cobol-app"
 
-
-  ####################################################
-  # 4) DEPLOY TO EC2 (SELF-HOSTED RUNNER MACHINE)
-  ####################################################
+  # 4) DEPLOY TO EC2
   deploy_to_ec2:
     name: Deploy to EC2 Linux (runner)
     runs-on: self-hosted
@@ -117,10 +99,7 @@ jobs:
           dos2unix scripts/deploy.sh
           bash scripts/deploy.sh
 
-
-  ####################################################
   # 5) SMOKE TEST
-  ####################################################
   smoke_test:
     name: Smoke Test Application
     runs-on: self-hosted
@@ -129,5 +108,4 @@ jobs:
     steps:
       - name: Test Health Endpoint
         run: |
-          echo "Running Smoke Test…"
           curl -I http://localhost:8080/health || exit 1
