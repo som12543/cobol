@@ -28,7 +28,7 @@ jobs:
 
   # 2) PARALLEL BUILD + DB MIGRATION
   build_and_migrate:
-    name: Parallel: Build COBOL App + DB Migration
+    name: "Parallel: Build COBOL App + DB Migration"
     runs-on: self-hosted
     needs: security_scan
 
