@@ -7,10 +7,12 @@ on:
 
 jobs:
 
-  # 1) SECURITY SCAN
+  # -------------------------------------------------------------
+  # 1) SECURITY SCAN (RUNS ON GITHUB HOSTED RUNNER)
+  # -------------------------------------------------------------
   security_scan:
     name: Security Scan (Trivy)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest   # <—— ONLY THIS USES HOSTED RUNNER
 
     steps:
       - name: Checkout code
@@ -26,9 +28,12 @@ jobs:
       - name: Run Trivy on source code
         run: trivy fs . --exit-code 0 --no-progress
 
-  # 2) PARALLEL BUILD + DB MIGRATION
+
+  # -------------------------------------------------------------
+  # 2) PARALLEL BUILD + DB MIGRATION (SELF HOSTED EC2)
+  # -------------------------------------------------------------
   build_and_migrate:
-    name: "Parallel: Build COBOL App + DB Migration"
+    name: Parallel: Build COBOL App + DB Migration
     runs-on: self-hosted
     needs: security_scan
 
@@ -60,7 +65,10 @@ jobs:
           dos2unix scripts/db_migrate.sh
           bash scripts/db_migrate.sh
 
-  # 3) PUSH BUILD OUTPUT TO NEXUS
+
+  # -------------------------------------------------------------
+  # 3) PUSH BUILD OUTPUT TO NEXUS (SELF HOSTED EC2)
+  # -------------------------------------------------------------
   push_to_nexus:
     name: Push Executable to Nexus Repository
     runs-on: self-hosted
@@ -80,7 +88,10 @@ jobs:
             --upload-file output/cobol-app \
             "http://$NEXUS_IP:8081/repository/cobol-release/cobol-app"
 
-  # 4) DEPLOY TO EC2
+
+  # -------------------------------------------------------------
+  # 4) DEPLOY TO EC2 (SELF HOSTED EC2)
+  # -------------------------------------------------------------
   deploy_to_ec2:
     name: Deploy to EC2 Linux (runner)
     runs-on: self-hosted
@@ -99,7 +110,10 @@ jobs:
           dos2unix scripts/deploy.sh
           bash scripts/deploy.sh
 
-  # 5) SMOKE TEST
+
+  # -------------------------------------------------------------
+  # 5) SMOKE TEST (SELF HOSTED EC2)
+  # -------------------------------------------------------------
   smoke_test:
     name: Smoke Test Application
     runs-on: self-hosted
