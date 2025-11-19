@@ -1,0 +1,1 @@
+CREATE TABLE lidb_subscriber (...);

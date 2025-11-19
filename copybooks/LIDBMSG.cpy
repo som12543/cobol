@@ -1,0 +1,3 @@
+01 MSG-CODES.
+ 05 MSG-OK PIC X(4) VALUE "0000".
+...
