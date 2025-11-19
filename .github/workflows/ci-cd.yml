@@ -10,7 +10,7 @@ jobs:
   # 1) SECURITY SCAN
   security_scan:
     name: Security Scan (Trivy)
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
